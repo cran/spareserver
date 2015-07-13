@@ -1,7 +1,6 @@
 
 #' Client size load balancing
 #'
-#' @importFrom methods .selectSuperClasses
 #' @docType package
 #' @name spareserver-package
 NULL
@@ -111,6 +110,8 @@ remove_service <- function(name) {
 #'
 #' @export
 #' @importFrom assertthat assert_that is.string
+#' @importFrom methods is
+#' @importFrom utils modifyList
 
 add_server <- function(service, ...) {
   assert_that(is.string(service))
@@ -209,8 +210,9 @@ robust_q <- function(service, url, fun, args, servers, odds,
   if (no_rounds == 1) {
     stop("Cannot do query '", url, "'.")
   } else {
+    for (i in seq_along(servers)) servers[[i]]$state <- "unknown"
     robust_q(service, url, fun, args, servers, odds,
-             timeout_multiplier = timeout_multiplier * 5,
+             timeout_multiplier = timeout_multiplier * 50,
              no_rounds = no_rounds - 1)
   }
 }
